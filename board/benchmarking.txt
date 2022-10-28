@@ -1,0 +1,4 @@
+                    Time Benchmarking for 10 times (for ((i=0; i<10; i++)); do py main.py; done;)
+Without             2 minutes
+With visitedSet     25 seconds
+

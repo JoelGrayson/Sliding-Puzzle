@@ -37,8 +37,10 @@ class PlayableBoard(Board): #extends board with .play() method
         with Listener(on_press=on_press, suppress=True) as listener:  # type: ignore
             listener.join()
 
-    def animated_solve(self, speed=1):
-        moves=self.solve_with_bfs()
+    def animated_solve(self, moves=None, speed=1):
+        if moves is None:
+            moves=self.solve_with_bfs()
+
         for move in moves:
             print(self)
             j.print('[blue]Solving...')

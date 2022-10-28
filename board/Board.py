@@ -53,7 +53,7 @@ class Board:
 
         return moves
 
-    def move(self, move, check_moves=True, position='absolute') -> None | str: #pos: 'absolute' | 'relative'
+    def move(self, move, position='absolute') -> None | str: #pos: 'absolute' | 'relative'
         is_abs=position=='absolute'
         hole=self.get_hole()
         diff=(move[0]-hole[0], move[1]-hole[1]) if is_abs else move #x_diff, y_diff
@@ -100,10 +100,14 @@ class Board:
         return Board(board)
 
     def __str__(self):
-        out=str(self.board).replace('0', ' ') #hole is blank space
+        out=str(self.board)#.replace('0', ' ') #hole is blank space
         if self.is_goal(): # 🌈 if solved
             out=j.format('[rainbow]'+str(out))
         return '---Board---\n'+out
+
+    def hash(self) -> str: #hashed boards stored in a visitedSet
+        return str(self.board)
+
 
     def __eq__(self, other_board) -> bool:
         if type(other_board)==Board or type(other_board).__name__=='PlayableBoard':
@@ -115,6 +119,8 @@ class Board:
         if target is None: #no args means goal_board
             target=self.goal_board()
 
+        visitedSet=set() #set of visited boards
+
         frontier=Queue() #q of els with board and path
             # : { board: Board; path: string[] }
         frontier.enqueue({ #starting point in frontier
@@ -125,6 +131,8 @@ class Board:
         while len(frontier)!=0: #not empty
             #list of move tuples
             curr=frontier.dequeue()
+            visitedSet.add(curr['board'].hash())
+
             if curr['board']==target:
                 return curr['path']
 
@@ -132,6 +140,8 @@ class Board:
             for mv in curr['board'].get_legal_moves():
                 new_board=curr['board'].clone() #go from current situation
                 new_board.move(mv)
+                if new_board.hash() in visitedSet: #skip over already visited boards
+                    continue
                 new_state={
                     "board": new_board,
                     "path": curr['path']+[mv]
